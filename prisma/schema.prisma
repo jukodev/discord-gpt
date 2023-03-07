@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  role String
+  message String
+  messageList MessageList? @relation(fields: [messageListId], references: [id])
+  messageListId Int?
+}
+
+model MessageList {
+  id Int @id @default(autoincrement())
+  messages Message[]
+}

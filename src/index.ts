@@ -5,7 +5,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const process = require('process');
 
-let channel: Channel;
+let channel: any;
 
 require('dotenv').config();
 
@@ -18,5 +18,12 @@ client.on('ready', () => {
   );
   client.channels.fetch(process.env.DISCORD_CHANNEL).then((ch: Channel) => {
     channel = ch;
+  });
+});
+
+client.on('messageCreated', async (message: any) => {
+  if (message.author.bot) return;
+  askGPT(message.content).then((ans: string) => {
+    channel.send(ans);
   });
 });
