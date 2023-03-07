@@ -1,4 +1,5 @@
 import { Channel } from 'discord.js';
+const { askGPT } = require('./gpt');
 
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
