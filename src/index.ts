@@ -1,5 +1,5 @@
 import { Channel } from 'discord.js';
-const { askGPT } = require('./gpt');
+const { askGPT, newChat } = require('./gpt');
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client({
@@ -32,6 +32,10 @@ client.on('messageCreate', async (message: any) => {
   ) {
     return;
   }
+  if (message.content === '--newChat') {
+    newChat();
+    channel.send('Neue Konversation gestartet');
+  }
   message.channel.sendTyping();
 
   askGPT(message.content)
@@ -39,5 +43,10 @@ client.on('messageCreate', async (message: any) => {
       console.log(ans);
       channel.send(ans);
     })
-    .catch((err: Error) => console.log(err));
+    .catch((err: Error) => {
+      console.log(err);
+      channel.send(
+        'Interner Server Error, starte eine neue Konversation mit "--newChat"'
+      );
+    });
 });

@@ -1,7 +1,7 @@
 const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
-const messages: Messages[] = [];
+let messages: Messages[] = [];
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_KEY
@@ -26,6 +26,10 @@ async function askGPT(message: string): Promise<string> {
   });
 }
 
+function newChat(): void {
+  messages = [];
+}
+
 interface Messages {
   role: Role;
   content: string;
@@ -33,4 +37,4 @@ interface Messages {
 
 type Role = 'system' | 'user' | 'assistant';
 
-module.exports = { askGPT };
+module.exports = { askGPT, newChat };
