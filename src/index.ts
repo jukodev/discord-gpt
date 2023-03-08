@@ -2,7 +2,9 @@ import { Channel } from 'discord.js';
 const { askGPT } = require('./gpt');
 
 const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [GatewayIntentBits.GuildMessages]
+});
 const process = require('process');
 
 let channel: any;
@@ -21,9 +23,15 @@ client.on('ready', () => {
   });
 });
 
-client.on('messageCreated', async (message: any) => {
+client.on('messageCreate', async (message: any) => {
+  console.log(message.content);
   if (message.author.bot) return;
-  askGPT(message.content).then((ans: string) => {
-    channel.send(ans);
-  });
+  message.channel.sendTyping();
+
+  askGPT(message.content)
+    .then((ans: string) => {
+      console.log(ans);
+      channel.send(ans);
+    })
+    .catch((err: Error) => console.log(err));
 });
