@@ -1,7 +1,7 @@
 const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
-let messages: Messages[] = [];
+const messages: Messages[] = [];
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_KEY
@@ -9,7 +9,8 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function askGPT(message: string): Promise<string> {
-  return new Promise(async (resolve, reject) => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
+  return await new Promise(async (resolve, reject) => {
     messages.push({ role: 'user', content: message });
     const completion = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
@@ -25,10 +26,10 @@ async function askGPT(message: string): Promise<string> {
   });
 }
 
-type Messages = {
+interface Messages {
   role: Role;
   content: string;
-};
+}
 
 type Role = 'system' | 'user' | 'assistant';
 
