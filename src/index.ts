@@ -25,8 +25,13 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message: any) => {
-  console.log(message);
-  if (message.author.bot === true) return;
+  console.log(message.content);
+  if (
+    message.author.bot === true ||
+    channel.channelId !== process.env.CHANNEL_ID
+  ) {
+    return;
+  }
   message.channel.sendTyping();
 
   askGPT(message.content)
