@@ -3,13 +3,14 @@ const { askGPT, newChat } = require('./gpt');
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client({
-  intents: [GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
-  partials: [Partials.Channel]
+  intents: [GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
+  partials: [Partials.Channel, Partials.Message]
 });
 const process = require('process');
 
 let channel: any;
 
+let currentConvo: string;
 require('dotenv').config();
 
 process.title = 'discord-gpt';
@@ -28,13 +29,13 @@ client.on('messageCreate', async (message: any) => {
   console.log(message.content);
   if (
     message.author.bot === true ||
-    channel.channelId !== process.env.CHANNEL_ID
+    (channel.channelId !== process.env.CHANNEL_ID && message.guild !== undefined)
   ) {
     return;
   }
   if (message.content === '--newChat') {
-    newChat();
-    channel.send('Neue Konversation gestartet');
+    currentConvo = crypto.randomUUID().substring(0, 7);
+    channel.send('Neue Konversation gestartet: ' + currentConvo);
   }
   message.channel.sendTyping();
 
