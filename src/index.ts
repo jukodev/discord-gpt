@@ -1,5 +1,5 @@
 import { Channel } from 'discord.js';
-const { askGPT, newChat } = require('./gpt');
+const { askGPT } = require('./gpt');
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client({
@@ -26,28 +26,43 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message: any) => {
-  console.log(message.content);
+  // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+  console.log(message.channel.type + '' + message.author);
   if (
     message.author.bot === true ||
-    (channel.channelId !== process.env.CHANNEL_ID && message.guild !== undefined)
+    (message.channelId !== process.env.CHANNEL_ID && message.channel.type === 0)
   ) {
     return;
   }
   if (message.content === '--newChat') {
     currentConvo = crypto.randomUUID().substring(0, 7);
-    channel.send('Neue Konversation gestartet: ' + currentConvo);
+    message.channel.send('Neue Konversation gestartet: ' + currentConvo);
+    return;
   }
   message.channel.sendTyping();
-
-  askGPT(message.content)
-    .then((ans: string) => {
-      console.log(ans);
-      channel.send(ans);
-    })
-    .catch((err: Error) => {
-      console.log(err);
-      channel.send(
-        'Interner Server Error, starte eine neue Konversation mit "--newChat"'
-      );
-    });
+  if (message.channel.type === 1) {
+    askGPT(message.content, message.author)
+      .then((ans: string) => {
+        console.log(ans);
+        message.channel.send(ans);
+      })
+      .catch((err: Error) => {
+        console.log(err);
+        message.channel.send(
+          'Interner Server Error, starte eine neue Konversation mit "--newChat"'
+        );
+      });
+  } else {
+    askGPT(message.content, currentConvo)
+      .then((ans: string) => {
+        console.log(ans);
+        channel.send(ans);
+      })
+      .catch((err: Error) => {
+        console.log(err);
+        channel.send(
+          'Interner Server Error, starte eine neue Konversation mit "--newChat"'
+        );
+      });
+  }
 });
