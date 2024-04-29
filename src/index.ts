@@ -1,47 +1,54 @@
-import { Channel } from 'discord.js';
-const { askGPT } = require('./gpt');
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { askLlama } from './gpt.js';
 
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+import { Client, GatewayIntentBits, Partials, Channel } from 'discord.js';
+import process from 'process';
+import dotenv from 'dotenv';
+dotenv.config();
 const client = new Client({
-  intents: [GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages],
+  intents: [
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages
+  ],
   partials: [Partials.Channel, Partials.Message]
 });
-const process = require('process');
 
 let channel: any;
 
 let currentConvo: string;
-require('dotenv').config();
 
 process.title = 'discord-gpt';
-client.login(process.env.DISCORD_KEY);
+await client.login(process.env.DISCORD_KEY);
 
-client.on('ready', () => {
+client.on('ready', async () => {
   console.log(
-    `Connected to discord as ${client.user.tag}, running as ${process.title}`
+    `Connected to discord as ${client.user!.tag}, running as ${process.title}`
   );
-  client.channels.fetch(process.env.DISCORD_CHANNEL).then((ch: Channel) => {
-    channel = ch;
-  });
+  await client.channels
+    .fetch(process.env.DISCORD_CHANNEL!)
+    .then((ch: Channel | null) => {
+      channel = ch;
+    });
 });
 
 client.on('messageCreate', async (message: any) => {
-  // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-  console.log(message.channel.type + '' + message.author);
   if (
     message.author.bot === true ||
-    (message.channelId !== process.env.CHANNEL_ID && message.channel.type === 0)
+    (message.channelId !== process.env.DISCORD_CHANNEL &&
+      message.channel.type === 0)
   ) {
     return;
   }
   if (message.content === '--newChat') {
+    console.log('newChat');
     currentConvo = crypto.randomUUID().substring(0, 7);
     message.channel.send('Neue Konversation gestartet: ' + currentConvo);
     return;
   }
   message.channel.sendTyping();
   if (message.channel.type === 1) {
-    askGPT(message.content, message.author)
+    askLlama(message.content, message.author)
       .then((ans: string) => {
         console.log(ans);
         message.channel.send(ans);
@@ -53,7 +60,7 @@ client.on('messageCreate', async (message: any) => {
         );
       });
   } else {
-    askGPT(message.content, currentConvo)
+    askLlama(message.content, currentConvo)
       .then((ans: string) => {
         console.log(ans);
         channel.send(ans);
