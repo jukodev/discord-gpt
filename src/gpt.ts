@@ -2,7 +2,7 @@ import { Ollama } from 'ollama';
 
 const convos = new Map<string, Messages[]>();
 
-const ollama = new Ollama({ host: 'http://localhost:2233' });
+const ollama = new Ollama({ host: process.env.OLLAMA_HOST });
 
 export async function askLlama(
   message: string,
@@ -11,11 +11,12 @@ export async function askLlama(
   return await new Promise(async (resolve, reject) => {
     const messages = convos.get(convo) ?? [];
     messages.push({ role: 'user', content: message });
-    const completion = await ollama.chat({
-      model: 'llama3',
-      messages
-    });
+
     try {
+      const completion = await ollama.chat({
+        model: 'llama3',
+        messages
+      });
       const answer = completion.message.content;
       messages.push({ role: 'assistant', content: answer });
       convos.set(convo, messages);

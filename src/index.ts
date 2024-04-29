@@ -50,8 +50,7 @@ client.on('messageCreate', async (message: any) => {
   if (message.channel.type === 1) {
     askLlama(message.content, message.author)
       .then((ans: string) => {
-        console.log(ans);
-        message.channel.send(ans);
+        message.channel.send(ans ?? 'Keine Antwort');
       })
       .catch((err: Error) => {
         console.log(err);
