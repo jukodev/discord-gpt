@@ -20,20 +20,16 @@ export async function askLlama(message: string, convo: string): Promise<void> {
     messages.push({ role: 'assistant', content: '' });
 
     for await (const part of response) {
-      const { role, content } = part.message;
-      console.log('whole: ' + currentMessage);
-      if (role === 'assistant') {
-        currentMessage += content;
-        if (content.includes('\n' || part.done)) {
-          console.log('msg: ' + currentMessage);
-          console.log('part: ' + content);
-          sendMessage(currentMessage);
-          currentMessage = '';
-          messages[messages.length - 1].content += currentMessage;
-        }
+      const { content } = part.message;
+      currentMessage += content;
+      if (content.includes('\n' || part.done === true)) {
+        console.log('msg: ' + currentMessage);
+        console.log('part: ' + content);
+        sendMessage(currentMessage);
+        currentMessage = '';
+        messages[messages.length - 1].content += currentMessage;
       }
     }
-
     convos.set(convo, messages);
   } catch (err: unknown) {
     console.error(err);
