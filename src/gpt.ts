@@ -22,7 +22,7 @@ export async function askLlama(message: string, convo: string): Promise<void> {
 
     for await (const part of response) {
       const { content } = part.message;
-      wholeMessage.concat(content);
+      wholeMessage = wholeMessage.concat(content);
       if (content.includes('\n') || part.done === true) {
         if (discordMessageRef === undefined) {
           discordMessageRef = await sendMessage(wholeMessage);
