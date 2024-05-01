@@ -25,7 +25,9 @@ export async function askLlama(message: string, convo: string): Promise<void> {
       const { role, content } = part.message;
       if (role === 'assistant') {
         currentMessage += content;
-        if (part.message.content.includes('\n')) {
+        if (content.includes('\n')) {
+          console.log('msg: ' + currentMessage);
+          console.log('part: ' + content);
           sendMessage(currentMessage);
           currentMessage = '';
           messages[messages.length - 1].content += currentMessage;
@@ -34,6 +36,7 @@ export async function askLlama(message: string, convo: string): Promise<void> {
       }
     }
     currentMessage = '';
+    console.log('done');
     busy = false;
 
     convos.set(convo, messages);
