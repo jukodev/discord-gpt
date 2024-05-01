@@ -5,11 +5,10 @@ dotenv.config();
 const convos = new Map<string, Messages[]>();
 
 const ollama = new Ollama({ host: process.env.OLLAMA_HOST });
-let currentMessage: string = '';
-let busy = false;
 
 export async function askLlama(message: string, convo: string): Promise<void> {
   const messages = convos.get(convo) ?? [];
+  let currentMessage = '';
   messages.push({ role: 'user', content: message });
 
   try {
@@ -18,7 +17,6 @@ export async function askLlama(message: string, convo: string): Promise<void> {
       messages,
       stream: true
     });
-    busy = true;
     messages.push({ role: 'assistant', content: '' });
 
     for await (const part of response) {
@@ -32,12 +30,8 @@ export async function askLlama(message: string, convo: string): Promise<void> {
           currentMessage = '';
           messages[messages.length - 1].content += currentMessage;
         }
-        sendMessage(content);
       }
     }
-    currentMessage = '';
-    console.log('done');
-    busy = false;
 
     convos.set(convo, messages);
   } catch (err: unknown) {
@@ -46,10 +40,6 @@ export async function askLlama(message: string, convo: string): Promise<void> {
       'Interner Server Error, starte eine neue Konversation mit "--newChat"'
     );
   }
-}
-
-export function isBusy(): boolean {
-  return busy;
 }
 
 interface Messages {

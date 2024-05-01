@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { askLlama, isBusy } from './gpt.js';
+import { askLlama } from './gpt.js';
 
 import { Client, GatewayIntentBits, Partials, Channel } from 'discord.js';
 import process from 'process';
@@ -33,9 +33,6 @@ client.on('ready', async () => {
 });
 
 client.on('messageCreate', async (message: any) => {
-  if (isBusy() === true) {
-    return;
-  }
   if (
     message.author.bot === true ||
     (message.channelId !== process.env.DISCORD_CHANNEL &&
