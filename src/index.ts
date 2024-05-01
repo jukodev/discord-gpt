@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { askLlama } from './gpt.js';
+import { askLlama, isBusy } from './gpt.js';
 
 import { Client, GatewayIntentBits, Partials, Channel } from 'discord.js';
 import process from 'process';
@@ -33,6 +33,9 @@ client.on('ready', async () => {
 });
 
 client.on('messageCreate', async (message: any) => {
+  if (isBusy() === true) {
+    return;
+  }
   if (
     message.author.bot === true ||
     (message.channelId !== process.env.DISCORD_CHANNEL &&
@@ -47,28 +50,9 @@ client.on('messageCreate', async (message: any) => {
     return;
   }
   message.channel.sendTyping();
-  if (message.channel.type === 1) {
-    askLlama(message.content, message.author)
-      .then((ans: string) => {
-        message.channel.send(ans ?? 'Keine Antwort');
-      })
-      .catch((err: Error) => {
-        console.log(err);
-        message.channel.send(
-          'Interner Server Error, starte eine neue Konversation mit "--newChat"'
-        );
-      });
-  } else {
-    askLlama(message.content, currentConvo)
-      .then((ans: string) => {
-        console.log(ans);
-        channel.send(ans);
-      })
-      .catch((err: Error) => {
-        console.log(err);
-        channel.send(
-          'Interner Server Error, starte eine neue Konversation mit "--newChat"'
-        );
-      });
-  }
+  await askLlama(message.content, message.author);
 });
+
+export function sendMessage(msg: string) {
+  channel.send(msg);
+}
