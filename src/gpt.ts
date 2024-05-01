@@ -21,11 +21,8 @@ export async function askLlama(message: string, convo: string): Promise<void> {
 
     for await (const part of response) {
       const { content } = part.message;
-      console.log(part.done);
       currentMessage += content;
-      if (content.includes('\n' || part.done === true)) {
-        console.log('msg: ' + currentMessage);
-        console.log('part: ' + content);
+      if (content.includes('\n') || part.done === true) {
         sendMessage(currentMessage);
         currentMessage = '';
         messages[messages.length - 1].content += currentMessage;
