@@ -49,6 +49,7 @@ client.on('messageCreate', async (message: any) => {
   await askLlama(message.content, message.author);
 });
 
-export function sendMessage(msg: string) {
-  channel.send(msg);
+export async function sendMessage(msg: string) {
+  const message = await channel.send(msg);
+  return Promise.resolve(message);
 }

@@ -8,7 +8,8 @@ const ollama = new Ollama({ host: process.env.OLLAMA_HOST });
 
 export async function askLlama(message: string, convo: string): Promise<void> {
   const messages = convos.get(convo) ?? [];
-  let currentMessage = '';
+  let discordMessageRef: any = undefined;
+  let wholeMessage = '';
   messages.push({ role: 'user', content: message });
 
   try {
@@ -21,11 +22,14 @@ export async function askLlama(message: string, convo: string): Promise<void> {
 
     for await (const part of response) {
       const { content } = part.message;
-      currentMessage += content;
+      wholeMessage += content;
       if (content.includes('\n') || part.done === true) {
-        sendMessage(currentMessage);
-        currentMessage = '';
-        messages[messages.length - 1].content += currentMessage;
+        if (discordMessageRef === undefined) {
+          discordMessageRef = await sendMessage(wholeMessage);
+        } else {
+          await discordMessageRef.edit(wholeMessage);
+        }
+        messages[messages.length - 1].content = wholeMessage;
       }
     }
     convos.set(convo, messages);
