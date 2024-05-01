@@ -35,8 +35,7 @@ client.on('ready', async () => {
 client.on('messageCreate', async (message: any) => {
   if (
     message.author.bot === true ||
-    (message.channelId !== process.env.DISCORD_CHANNEL &&
-      message.channel.type === 0)
+    message.channelId !== process.env.DISCORD_CHANNEL
   ) {
     return;
   }
